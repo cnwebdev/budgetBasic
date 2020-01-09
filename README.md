@@ -1,2 +1,2 @@
-# BudgetBasic
+# BASIC BUBGET APP
 A basic budget management app that will allow user to enter income and expense data.
