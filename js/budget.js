@@ -1,31 +1,59 @@
 ///////////////////////////////////////////////////////////////////////
 // Budget Management Basic
 
-// BUDGET CONTROLLER
+// Bubget Controller
 var budgetController = (function () {
+  // Some Code
 
-  var x = 23;
+})();
 
-  var add = function (a) {
-    return x + a;
-  }
+// UI Controller
+var UIController = (function () {
 
+  // Code 
   return {
-    publicTest: function (b) {
-      return add(b);
+    getInput: function () {
+      return {
+        type: document.querySelector('.add__type').value, // income or expense
+        description: document.querySelector('.add__description').value,
+        value: document.querySelector('.add__value').value
+      };
     }
   }
 })();
 
-var UIController = (function () {
-  // Code 
-
-
-})();
-
-var consoller = (function (budgetCtrl, UICtrl) {
+// Global App Controller
+var controller = (function (budgetCtrl, uiCtrl) {
   // Code
-  var addResult = budgetController.publicTest(33);
-  console.log(addResult);
+  var ctrlAddItem = function () {
+    // 1. Get the field input data
+    var input = uiCtrl.getInput();
+    console.log(input);
+
+    // 2. Add the item to the budget controller
+
+    // 3. Add the item to the UI
+
+    // 4. Display the budget on the UI
+
+    console.log('It works');
+
+  }
+
+  document.querySelector('.add__btn').addEventListener('click', ctrlAddItem);  // Call ctrlAddItem function
+
+  document.addEventListener('keydown', function (event) {
+    if (event.keyCode === 13 || event.which === 13) {
+      ctrlAddItem();
+    }
+  });
 
 })(budgetController, UIController);
+
+
+
+
+
+
+
+
