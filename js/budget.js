@@ -2,7 +2,7 @@
 // Budget Management Basic
 
 // BUDGET CONTROLLER
-var bugetController = (function () {
+var budgetController = (function () {
 
   var x = 23;
 
@@ -12,7 +12,20 @@ var bugetController = (function () {
 
   return {
     publicTest: function (b) {
-      console.log(add(b));
+      return add(b);
     }
   }
 })();
+
+var UIController = (function () {
+  // Code 
+
+
+})();
+
+var consoller = (function (budgetCtrl, UICtrl) {
+  // Code
+  var addResult = budgetController.publicTest(33);
+  console.log(addResult);
+
+})(budgetController, UIController);
