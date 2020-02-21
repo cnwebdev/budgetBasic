@@ -29,7 +29,7 @@ const budgetController = (function () {
       int: 0
     }
   };
-
+  // Add item method
   return {
     addItem: function (type, des, val) {
       let newItem, id;
@@ -44,10 +44,8 @@ const budgetController = (function () {
       // Create new expense or income items
       if (type === 'exp') {
         newItem = new Expense(id, des, val);
-        console.log(newItem);
       } else if (type === 'inc') {
         newItem = new Income(id, des, val);
-        console.log(newItem);
       }
 
       // Add items to data structure
@@ -81,7 +79,7 @@ const UIController = (function () {
       return {
         type: document.querySelector(DOMels.inType).value, // Value will be inc or exp
         description: document.querySelector(DOMels.inDesc).value,
-        value: document.querySelector(DOMels.inVal).value
+        value: parseFloat(document.querySelector(DOMels.inVal).value)
       };
     },
     addListItem: function (obj, type) {
@@ -135,26 +133,40 @@ const controller = (function (budgetCtrl, UICtrl) {
     });
   };
 
+  // Update budget function
+  const updateBudget = function () {
+    // 1. Calculate the budget
+
+
+    // 2. Return the budget
+
+
+    // 3. Display the budget on the UI
+
+
+  };
+
   // Add Item Controller Object
   const addItemCtrl = function () {
 
     // 1. Get the field input data
     const input = UICtrl.getInput();
-    console.log(input);
 
-    // 2. Add the item to the budget controller
-    const newItem = budgetCtrl.addItem(input.type, input.description, input.value);
-    console.log(newItem);
+    if (input.description !== '' && !isNaN(input.value) && input.value > 0) {
 
-    // 3. Add the item to the UI
-    UICtrl.addListItem(newItem, input.type);
+      // 2. Add the item to the budget controller
+      const newItem = budgetCtrl.addItem(input.type, input.description, input.value);
 
-    // 4. Clear input data 
-    UICtrl.resetInput();
+      // 3. Add the item to the UI
+      UICtrl.addListItem(newItem, input.type);
 
-    // 5. Calculate the budget
+      // 4. Clear input data 
+      UICtrl.resetInput();
 
-    // 6. Display the budget on the UI
+      // 5. Calculate and update budget
+      updateBudget();
+
+    }
   };
 
   return {
