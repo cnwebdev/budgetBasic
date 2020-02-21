@@ -64,6 +64,23 @@ const balanceController = (function () {
 
       return newItem;
     },
+    deleleItem: function (type, id) {
+      console.log(type, id);
+
+      // 
+      const ids = data.allItems[type].map((val) => {
+        return val.id;
+      });
+      console.log(ids);
+
+      const index = ids.indexOf(id);
+      console.log(index);
+
+      if (index !== -1) {
+        data.allItems[type].splice(index, 1);
+      }
+      console.log(data);
+    },
     calcBalance: function () {
 
       // Calculate total income and expenses
@@ -105,12 +122,13 @@ const UIController = (function () {
     inputDesc: '.add__description',
     inputVal: '.add__value',
     addBtn: '.add__btn',
-    inContainer: '.income__list',
-    exContainer: '.expenses__list',
+    incList: '.income__list',
+    expList: '.expenses__list',
     balLabel: '.budget__value',
     incLabel: '.budget__income--value',
     expLabel: '.budget__expenses--value',
-    perLabel: '.budget__expenses--percentage'
+    perLabel: '.budget__expenses--percentage',
+    container: '.container'
   };
 
   // Setup publicly accessible object's methods
@@ -127,11 +145,11 @@ const UIController = (function () {
 
       // Create HTML string with placeholder text
       if (type === 'inc') {
-        element = DOMels.inContainer;
-        temp = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"> <div class="item__value">%value%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div></div></div>';
+        element = DOMels.incList;
+        temp = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div><div class="right clearfix"> <div class="item__value">%value%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div></div></div>';
       } else if (type === 'exp') {
-        element = DOMels.exContainer;
-        temp = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+        element = DOMels.expList;
+        temp = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
 
       // Replace the placeholder text with some actual data
@@ -141,6 +159,10 @@ const UIController = (function () {
 
       // Insert the HTML item
       document.querySelector(element).insertAdjacentHTML('beforeend', html);
+    },
+    deleteUiItem: function (elementId) {
+      let element = document.getElementById(elementId);
+      element.parentNode.removeChild(element);
     },
     resetInput: () => {
       const temp = document.querySelectorAll(DOMels.inputDesc + ', ' + DOMels.inputVal);
@@ -163,7 +185,6 @@ const UIController = (function () {
         document.querySelector(DOMels.perLabel).textContent = '---';
       }
     },
-
     // return DOM object 
     getDOMels: function () {
       return DOMels;
@@ -184,6 +205,8 @@ const controller = (function (balanceCtrl, UICtrl) {
         addItemCtrl();
       }
     });
+
+    document.querySelector(DOMels.container).addEventListener('click', deleteItemCtrl);
   };
 
   // Update balance function
@@ -219,7 +242,30 @@ const controller = (function (balanceCtrl, UICtrl) {
 
       // 5. Calculate and update balance
       updateBalance();
+    }
+  };
 
+  // Delete Item Controller Object
+  const deleteItemCtrl = function (event) {
+    const itemId = event.target.parentNode.parentNode.parentNode.parentNode.id;
+    console.log(event.target.parentNode.parentNode.parentNode.parentNode.id);
+
+    if (itemId) {
+      // inc-n or exp-n
+      const splitId = itemId.split('-');
+      const type = splitId[0];
+      const id = parseInt(splitId[1]);
+      console.log(type);
+      console.log(id);
+
+      // 1. Delete the item from the data structure
+      balanceCtrl.deleleItem(type, id);
+
+      // 2. Delete the item from the UI
+      UICtrl.deleteUiItem(itemId);
+
+      // 3. Update the balance 
+      updateBalance();
     }
   };
 
@@ -241,29 +287,3 @@ const controller = (function (balanceCtrl, UICtrl) {
 // Call controller's init();
 controller.init();
 
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-// TO-DO LIST
-
-/*
-
-UI MODULE
-Get input values
-Add the new item to UI
-Update the UI
-
-
-DATA MODULE
-Add the new item to data structure
-Calculate budget
-
-
-CONTROLLER MODULE
-Add event handler
-
-
-*/
