@@ -38,7 +38,7 @@ const budgetController = (function () {
       if (data.allItems[type].length > 0) {
         id = data.allItems[type][data.allItems[type].length - 1].id + 1;
       } else {
-        id = 0;
+        id = 1;
       };
 
       // Create new expense or income items
@@ -70,12 +70,12 @@ const UIController = (function () {
     inType: '.add__type',
     inDesc: '.add__description',
     inVal: '.add__value',
-    inBtn: '.add__btn',
+    addBtn: '.add__btn',
     inContainer: '.income__list',
     exContainer: '.expenses__list'
   };
 
-
+  // Setup publicly accessible object's methods
   return {
     getInput: function () {
       return {
@@ -85,26 +85,35 @@ const UIController = (function () {
       };
     },
     addListItem: function (obj, type) {
-      let html, newHtml, element;
+      let html, temp, element;
 
       // Create HTML string with placeholder text
-
       if (type === 'inc') {
         element = DOMels.inContainer;
-        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"> <div class="item__value">%value%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div></div></div>';
+        temp = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"> <div class="item__value">%value%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div></div></div>';
       } else if (type === 'exp') {
         element = DOMels.exContainer;
-        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div>    <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+        temp = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
 
       // Replace the placeholder text with some actual data
-      newHtml = html.replace('%id%', obj.id);
-      newHtml = newHtml.replace('%description%', obj.description);
-      newHtml = newHtml.replace('%value%', obj.value);
+      html = temp.replace('%id%', obj.id);
+      html = html.replace('%description%', obj.description);
+      html = html.replace('%value%', obj.value);
 
       // Insert the HTML item
-      document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+      document.querySelector(element).insertAdjacentHTML('beforeend', html);
     },
+    resetInput: () => {
+      const temp = document.querySelectorAll(DOMels.inDesc + ', ' + DOMels.inVal);
+      const clrInput = Array.prototype.slice.call(temp);
+
+      clrInput.forEach(function (val, index, array) {
+        val.value = '';
+      });
+      clrInput[0].focus();
+    },
+    // return DOM object 
     getDOMels: function () {
       return DOMels;
     }
@@ -117,7 +126,7 @@ const controller = (function (budgetCtrl, UICtrl) {
   const eventsData = function () {
     const DOMels = UICtrl.getDOMels();
 
-    document.querySelector(DOMels.inBtn).addEventListener('click', addItemCtrl);
+    document.querySelector(DOMels.addBtn).addEventListener('click', addItemCtrl);
 
     document.addEventListener('keypress', function (event) {
       if (event.keyCode === 13 || event.which === 13) {
@@ -131,16 +140,21 @@ const controller = (function (budgetCtrl, UICtrl) {
 
     // 1. Get the field input data
     const input = UICtrl.getInput();
+    console.log(input);
 
     // 2. Add the item to the budget controller
     const newItem = budgetCtrl.addItem(input.type, input.description, input.value);
+    console.log(newItem);
 
     // 3. Add the item to the UI
     UICtrl.addListItem(newItem, input.type);
 
-    // 4. Calculate the budget
+    // 4. Clear input data 
+    UICtrl.resetInput();
 
-    // 5. Display the budget on the UI
+    // 5. Calculate the budget
+
+    // 6. Display the budget on the UI
   };
 
   return {
