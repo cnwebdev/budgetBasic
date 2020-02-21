@@ -2,135 +2,153 @@
 // Budget Management Basic
 
 // Bubget Controller
-var budgetController = (function () {
+const budgetController = (function () {
 
-  var Expense = function (id, description, value) {
+  // Expense function constructor
+  const Expense = function (id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
-  var Income = function (id, description, value) {
+  // Income function constructor
+  const Income = function (id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
-  var data = {
+  // Data structure for all app data
+  const data = {
     allItems: {
       exp: [],
       inc: []
     },
     totals: {
       exp: 0,
-      inc: 0
+      int: 0
     }
   };
 
   return {
     addItem: function (type, des, val) {
-      var newItem, ID;
+      let newItem, id;
 
-      ID = 0;
-
-      // [1, 2, 3, 4, 5], next ID = 6
-      // We want ID = last ID + 1
-      // Creat new ID
+      // Create new ID
       if (data.allItems[type].length > 0) {
-        ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+        id = data.allItems[type][data.allItems[type].length - 1].id + 1;
       } else {
-        ID = 0;
-      }
+        id = 0;
+      };
 
-      // Create new item based on 'inc' or 'exp' type
+      // Create new expense or income items
       if (type === 'exp') {
-        newItem = new Expense(ID, des, val);
+        newItem = new Expense(id, des, val);
+        console.log(newItem);
       } else if (type === 'inc') {
-        newItem = new Income(ID, des, val);
+        newItem = new Income(id, des, val);
+        console.log(newItem);
       }
 
-      // Push new item into our data structure
+      // Add items to data structure
       data.allItems[type].push(newItem);
 
-      // Return the new element
       return newItem;
     },
-
     testing: function () {
-      console.log(data);
+      console.log(data)
     }
   };
 
 })();
 
 // UI Controller
-var UIController = (function () {
+const UIController = (function () {
 
-  // UI Data Object
-  var DOMStrings = {
-    inputType: '.add__type',
-    inputDescription: '.add__description',
-    inputValue: '.add__value',
-    inputBtn: '.add__btn'
+  // DOM element variables
+  const DOMels = {
+    inType: '.add__type',
+    inDesc: '.add__description',
+    inVal: '.add__value',
+    inBtn: '.add__btn',
+    inContainer: '.income__list',
+    exContainer: '.expenses__list'
   };
 
-  // return object values
+
   return {
     getInput: function () {
       return {
-        type: document.querySelector(DOMStrings.inputType).value, // income or expense
-        description: document.querySelector(DOMStrings.inputDescription).value,
-        value: document.querySelector(DOMStrings.inputValue).value
+        type: document.querySelector(DOMels.inType).value, // Value will be inc or exp
+        description: document.querySelector(DOMels.inDesc).value,
+        value: document.querySelector(DOMels.inVal).value
       };
     },
-    getDOMStrings: function () {
-      return DOMStrings;
+    addListItem: function (obj, type) {
+      let html, newHtml, element;
+
+      // Create HTML string with placeholder text
+
+      if (type === 'inc') {
+        element = DOMels.inContainer;
+        html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"> <div class="item__value">%value%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div></div></div>';
+      } else if (type === 'exp') {
+        element = DOMels.exContainer;
+        html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div>    <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      }
+
+      // Replace the placeholder text with some actual data
+      newHtml = html.replace('%id%', obj.id);
+      newHtml = newHtml.replace('%description%', obj.description);
+      newHtml = newHtml.replace('%value%', obj.value);
+
+      // Insert the HTML item
+      document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+    },
+    getDOMels: function () {
+      return DOMels;
     }
   }
 })();
 
 // Global App Controller
-var controller = (function (budgetCtrl, uiCtrl) {
+const controller = (function (budgetCtrl, UICtrl) {
 
-  var setupEventListeners = function () {
-    var DOMobject = uiCtrl.getDOMStrings();
+  const eventsData = function () {
+    const DOMels = UICtrl.getDOMels();
 
-    document.querySelector(DOMobject.inputBtn).addEventListener('click', ctrlAddItem);
+    document.querySelector(DOMels.inBtn).addEventListener('click', addItemCtrl);
 
-    document.addEventListener('keydown', function (event) {
+    document.addEventListener('keypress', function (event) {
       if (event.keyCode === 13 || event.which === 13) {
-        ctrlAddItem();
+        addItemCtrl();
       }
     });
   };
 
-
-  // Add data function
-  var ctrlAddItem = function () {
-    var inputData, newItem;
+  // Add Item Controller Object
+  const addItemCtrl = function () {
 
     // 1. Get the field input data
-    inputData = uiCtrl.getInput();
+    const input = UICtrl.getInput();
 
     // 2. Add the item to the budget controller
-    newItem = budgetCtrl.addItem(inputData.type, inputData.description, inputData.value);
+    const newItem = budgetCtrl.addItem(input.type, input.description, input.value);
 
     // 3. Add the item to the UI
+    UICtrl.addListItem(newItem, input.type);
 
+    // 4. Calculate the budget
 
-    // 4. Display the budget on the UI
-
-    console.log('It works');
-
+    // 5. Display the budget on the UI
   };
 
-  // Init function
   return {
     init: function () {
-      console.log('Application init started');
-      setupEventListeners();
+      console.log('App loaded!');
+      eventsData();
     }
-  }
+  };
 
 })(budgetController, UIController);
 
@@ -140,7 +158,30 @@ controller.init();
 
 
 
+  // Init function
 
 
 
 
+
+//////////////////////////////////////////////////////////////////////////////////
+// TO-DO LIST
+
+/*
+
+UI MODULE
+Get input values
+Add the new item to UI
+Update the UI
+
+
+DATA MODULE
+Add the new item to data structure
+Calculate budget
+
+
+CONTROLLER MODULE
+Add event handler
+
+
+*/
