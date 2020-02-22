@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
-// Checkbook Balance Basic
+// CHECKBOOK BALANCE BASIC 
+//
 
-// Balance Controller
+// BALANCE CONTROLLER
 const balanceController = (function () {
 
   // Expense function constructor
@@ -30,7 +31,7 @@ const balanceController = (function () {
     this.description = description;
     this.value = value;
   };
-
+  // Calculate Total Income or Expense
   const calcTotal = function (type) {
     let sum = 0;
     data.allItems[type].forEach(function (val) {
@@ -53,10 +54,11 @@ const balanceController = (function () {
     percentage: -1
   };
 
-  // Add item method
+  // Public Accessible Methods 
   return {
+    // Add item method
     addItem: function (type, des, val) {
-      let newItem, id;
+      let obj, id;
 
       // Create new ID
       if (data.allItems[type].length > 0) {
@@ -67,31 +69,26 @@ const balanceController = (function () {
 
       // Create new expense or income items
       if (type === 'exp') {
-        newItem = new Expense(id, des, val);
+        obj = new Expense(id, des, val);
       } else if (type === 'inc') {
-        newItem = new Income(id, des, val);
+        obj = new Income(id, des, val);
       }
 
       // Add items to data structure
-      data.allItems[type].push(newItem);
-
-      return newItem;
+      data.allItems[type].push(obj);
+      return obj;
     },
     deleleItem: function (type, id) {
-      console.log(type, id);
 
       const ids = data.allItems[type].map(function (val) {
         return val.id;
       });
-      console.log(ids);
 
       const index = ids.indexOf(id);
-      console.log(index);
 
       if (index !== -1) {
         data.allItems[type].splice(index, 1);
       }
-      console.log(data);
     },
     calcBalance: function () {
 
@@ -130,7 +127,9 @@ const balanceController = (function () {
 
 })();
 
-// UI Controller
+//////////////////////////////////////////////////////////////////////////////
+// UI CONTROLLER
+//
 const UIController = (function () {
 
   // DOM element variables
@@ -149,13 +148,15 @@ const UIController = (function () {
     percItemLabel: '.item__percentage'
   };
 
-  // Setup publicly accessible object's methods
+  // Setup public accessible object's methods
   return {
+
+    // Get input data from input selection, input fields 
     getInput: function () {
       return {
-        type: document.querySelector(DOMels.inputType).value, // Value will be inc or exp
-        description: document.querySelector(DOMels.inputDesc).value,
-        value: parseFloat(document.querySelector(DOMels.inputVal).value)
+        type: document.querySelector(DOMels.inputType).value, // Value will be 'inc' or 'exp'
+        description: document.querySelector(DOMels.inputDesc).value, // Description from input field
+        value: parseFloat(document.querySelector(DOMels.inputVal).value) // Amount from input field
       };
     },
     addListItem: function (obj, type) {
@@ -170,19 +171,21 @@ const UIController = (function () {
         temp = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div><div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
 
-      // Replace the placeholder text with some actual data
+      // Replace the placeholder text with obj.id, obj.description, and obj.value
       html = temp.replace('%id%', obj.id);
       html = html.replace('%description%', obj.description);
       html = html.replace('%value%', obj.value);
 
-      // Insert the HTML item
+      // Insert the HTML item on income or expense list
       document.querySelector(element).insertAdjacentHTML('beforeend', html);
     },
+    // Delete UI's income or expense item from list
     deleteUiItem: function (elementId) {
       let element = document.getElementById(elementId);
       element.parentNode.removeChild(element);
     },
-    resetInput: () => {
+    // Reset all input fields to empty, and move focus back to description input field
+    resetInput: function () {
       const temp = document.querySelectorAll(DOMels.inputDesc + ', ' + DOMels.inputVal);
       const clrInput = Array.prototype.slice.call(temp);
 
@@ -191,6 +194,7 @@ const UIController = (function () {
       });
       clrInput[0].focus();
     },
+    // Display balance, total income and expense
     displayBalance: function (data) {
       document.querySelector(DOMels.balLabel).textContent = data.balance;
       document.querySelector(DOMels.incLabel).textContent = data.totalInc;
@@ -203,9 +207,9 @@ const UIController = (function () {
         document.querySelector(DOMels.percTotalLabel).textContent = '---';
       }
     },
+    // Display expense percentage on item list
     displayPercentage: function (percentage) {
       const expItemNode = document.querySelectorAll(DOMels.percItemLabel);
-      console.log(expItemNode);
 
       const elementListForEach = function (list, callback) {
         for (let i = 0; i < list.length; i++) {
@@ -229,9 +233,10 @@ const UIController = (function () {
   }
 })();
 
-// Global App Controller
+// GLOBAL APP CONTROLLER
 const controller = (function (balanceCtrl, UICtrl) {
 
+  // UI Element & Event Data Selection Function
   const eventsData = function () {
     const DOMels = UICtrl.getDOMels();
 
@@ -270,8 +275,6 @@ const controller = (function (balanceCtrl, UICtrl) {
 
     // 3. Update the UI 
     UICtrl.displayPercentage(percentage);
-    console.log(percentage);
-
   };
 
   // Add Item Controller Object
@@ -283,10 +286,10 @@ const controller = (function (balanceCtrl, UICtrl) {
     if (input.description !== '' && !isNaN(input.value) && input.value > 0) {
 
       // 2. Add the item to the balance controller
-      const newItem = balanceCtrl.addItem(input.type, input.description, input.value);
+      const obj = balanceCtrl.addItem(input.type, input.description, input.value);
 
       // 3. Add the item to the UI
-      UICtrl.addListItem(newItem, input.type);
+      UICtrl.addListItem(obj, input.type);
 
       // 4. Clear input data 
       UICtrl.resetInput();
@@ -302,15 +305,12 @@ const controller = (function (balanceCtrl, UICtrl) {
   // Delete Item Controller Object
   const deleteItemCtrl = function (event) {
     const itemId = event.target.parentNode.parentNode.parentNode.parentNode.id;
-    console.log(event.target.parentNode.parentNode.parentNode.parentNode.id);
 
     if (itemId) {
       // inc-n or exp-n
       const splitId = itemId.split('-');
       const type = splitId[0];
       const id = parseInt(splitId[1]);
-      console.log(type);
-      console.log(id);
 
       // 1. Delete the item from the data structure
       balanceCtrl.deleleItem(type, id);
