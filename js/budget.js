@@ -9,6 +9,19 @@ const balanceController = (function () {
     this.id = id;
     this.description = description;
     this.value = value;
+    this.percentage = -1;
+  };
+
+  Expense.prototype.calculatePercentage = function (totalIncome) {
+    if (totalIncome > 0) {
+      this.percentage = Math.round((this.value / totalIncome) * 100);
+    } else {
+      this.percentage = -1;
+    }
+  };
+
+  Expense.prototype.getPercentage = function () {
+    return this.percentage;
   };
 
   // Income function constructor
@@ -67,8 +80,7 @@ const balanceController = (function () {
     deleleItem: function (type, id) {
       console.log(type, id);
 
-      // 
-      const ids = data.allItems[type].map((val) => {
+      const ids = data.allItems[type].map(function (val) {
         return val.id;
       });
       console.log(ids);
@@ -97,6 +109,13 @@ const balanceController = (function () {
         data.percentage = -1;
       }
     },
+    calcPercentage: function () {
+      data.allItems.exp.forEach((val) => val.calculatePercentage(data.totals.inc));
+    },
+    getPercentage: function () {
+      const expItemPerc = data.allItems.exp.map((val) => val.getPercentage());
+      return expItemPerc;
+    },
     getBalance: function () {
       return {
         balance: data.balance,
@@ -106,9 +125,7 @@ const balanceController = (function () {
       };
     },
 
-    testing: function () {
-      console.log(data)
-    }
+    testing: function () { console.log(data); }
   };
 
 })();
@@ -127,8 +144,9 @@ const UIController = (function () {
     balLabel: '.budget__value',
     incLabel: '.budget__income--value',
     expLabel: '.budget__expenses--value',
-    perLabel: '.budget__expenses--percentage',
-    container: '.container'
+    percTotalLabel: '.budget__expenses--percentage',
+    container: '.container',
+    percItemLabel: '.item__percentage'
   };
 
   // Setup publicly accessible object's methods
@@ -180,10 +198,29 @@ const UIController = (function () {
 
       // check for percentage > 0
       if (data.percentage > 0) {
-        document.querySelector(DOMels.perLabel).textContent = data.percentage + '%';
+        document.querySelector(DOMels.percTotalLabel).textContent = data.percentage + '%';
       } else {
-        document.querySelector(DOMels.perLabel).textContent = '---';
+        document.querySelector(DOMels.percTotalLabel).textContent = '---';
       }
+    },
+    displayPercentage: function (percentage) {
+      const expItemNode = document.querySelectorAll(DOMels.percItemLabel);
+      console.log(expItemNode);
+
+      const elementListForEach = function (list, callback) {
+        for (let i = 0; i < list.length; i++) {
+          callback(list[i], i);
+        }
+      };
+
+      elementListForEach(expItemNode, function (val, index) {
+        if (percentage[index] > 0) {
+          val.textContent = percentage[index] + '%';
+        } else {
+          val.textContent = '---';
+        }
+      });
+
     },
     // return DOM object 
     getDOMels: function () {
@@ -223,6 +260,20 @@ const controller = (function (balanceCtrl, UICtrl) {
 
   };
 
+  const updatePercentage = function () {
+
+    // 1. Calculate Percentages
+    balanceCtrl.calcPercentage();
+
+    // 2. Read percentage from the balance controller
+    const percentage = balanceCtrl.getPercentage();
+
+    // 3. Update the UI 
+    UICtrl.displayPercentage(percentage);
+    console.log(percentage);
+
+  };
+
   // Add Item Controller Object
   const addItemCtrl = function () {
 
@@ -242,6 +293,9 @@ const controller = (function (balanceCtrl, UICtrl) {
 
       // 5. Calculate and update balance
       updateBalance();
+
+      // 6. Calculate and update percentages
+      updatePercentage();
     }
   };
 
