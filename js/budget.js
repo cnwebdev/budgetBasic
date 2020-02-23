@@ -168,6 +168,13 @@ const UIController = (function () {
 
   };
 
+  // Node lopp function
+  const elementListForEach = function (list, callback) {
+    for (let i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  };
+
   // Setup public accessible object's methods
   return {
 
@@ -235,12 +242,6 @@ const UIController = (function () {
     displayPercentage: function (percentage) {
       const expItemNode = document.querySelectorAll(DOMels.percItemLabel);
 
-      const elementListForEach = function (list, callback) {
-        for (let i = 0; i < list.length; i++) {
-          callback(list[i], i);
-        }
-      };
-
       elementListForEach(expItemNode, function (val, index) {
         if (percentage[index] > 0) {
           val.textContent = percentage[index] + '%';
@@ -267,6 +268,18 @@ const UIController = (function () {
       document.querySelector(DOMels.dateLable).textContent = date;
 
     },
+    // Change the input select type 'inc' or 'exp'
+    changeIncExp: function () {
+
+      let inputIncExp = document.querySelectorAll(DOMels.inputType + ',' + DOMels.inputDesc + ',' + DOMels.inputVal);
+
+      elementListForEach(inputIncExp, function (val, index) {
+        val.classList.toggle('red-focus');
+      });
+
+      document.querySelector(DOMels.addBtn).classList.toggle('red');
+    },
+
     // return DOM object 
     getDOMels: function () {
       return DOMels;
@@ -274,7 +287,9 @@ const UIController = (function () {
   }
 })();
 
+////////////////////////////////////////////////////////////////////////////
 // GLOBAL APP CONTROLLER
+// 
 const controller = (function (balanceCtrl, UICtrl) {
 
   // UI Element & Event Data Selection Function
@@ -290,6 +305,7 @@ const controller = (function (balanceCtrl, UICtrl) {
     });
 
     document.querySelector(DOMels.container).addEventListener('click', deleteItemCtrl);
+    document.querySelector(DOMels.inputType).addEventListener('change', UICtrl.changeIncExp);
   };
 
   // Update balance function
