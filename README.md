@@ -17,5 +17,5 @@ After completed the training course, I am able to understand all the concepts an
 [Click to run](https://monksedo.github.io/budgetBasic/)
 
 ## Screenshot 
-### 
-![]()
+### Refactor UI code with Flexbox for better UX
+![](img/budgetScreen01.png)
