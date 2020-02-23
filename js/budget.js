@@ -145,7 +145,27 @@ const UIController = (function () {
     expLabel: '.budget__expenses--value',
     percTotalLabel: '.budget__expenses--percentage',
     container: '.container',
-    percItemLabel: '.item__percentage'
+    percItemLabel: '.item__percentage',
+    dateLable: '.budget__title--month'
+  };
+
+  // Format number function
+  const numberFormat = function (num, type) {
+    let numSplit, int, dec;
+    num = Math.abs(num);
+    num = num.toFixed(2);
+
+    numSplit = num.split('.');
+
+    int = numSplit[0];
+    if (int.length > 3) {
+      int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3);
+    }
+
+    dec = numSplit[1];
+
+    return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+
   };
 
   // Setup public accessible object's methods
@@ -174,7 +194,7 @@ const UIController = (function () {
       // Replace the placeholder text with obj.id, obj.description, and obj.value
       html = temp.replace('%id%', obj.id);
       html = html.replace('%description%', obj.description);
-      html = html.replace('%value%', obj.value);
+      html = html.replace('%value%', numberFormat(obj.value, type));
 
       // Insert the HTML item on income or expense list
       document.querySelector(element).insertAdjacentHTML('beforeend', html);
@@ -195,14 +215,18 @@ const UIController = (function () {
       clrInput[0].focus();
     },
     // Display balance, total income and expense
-    displayBalance: function (data) {
-      document.querySelector(DOMels.balLabel).textContent = data.balance;
-      document.querySelector(DOMels.incLabel).textContent = data.totalInc;
-      document.querySelector(DOMels.expLabel).textContent = data.totalExp;
+    displayBalance: function (obj) {
+      let type;
+
+      obj.balance > 0 ? type = 'inc' : type = 'exp';
+
+      document.querySelector(DOMels.balLabel).textContent = numberFormat(obj.balance, type);
+      document.querySelector(DOMels.incLabel).textContent = numberFormat(obj.totalInc, 'inc');
+      document.querySelector(DOMels.expLabel).textContent = numberFormat(obj.totalExp, 'exp');
 
       // check for percentage > 0
-      if (data.percentage > 0) {
-        document.querySelector(DOMels.percTotalLabel).textContent = data.percentage + '%';
+      if (obj.percentage > 0) {
+        document.querySelector(DOMels.percTotalLabel).textContent = obj.percentage + '%';
       } else {
         document.querySelector(DOMels.percTotalLabel).textContent = '---';
       }
@@ -224,6 +248,23 @@ const UIController = (function () {
           val.textContent = '---';
         }
       });
+
+    },
+    displayDate: function () {
+      let time, zone, date, today, month, year;
+
+      date = new Date();
+      // time = date.getTime();
+      today = date.getDate();
+      year = date.getFullYear();
+      month = date.getMonth();
+      // zone = date.getTimezoneOffset();
+
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      date = today + ', ' + months[month] + ', ' + ' ' + year
+
+      document.querySelector(DOMels.dateLable).textContent = date;
 
     },
     // return DOM object 
@@ -326,6 +367,7 @@ const controller = (function (balanceCtrl, UICtrl) {
   return {
     init: function () {
       console.log('App loaded!');
+      UICtrl.displayDate();
       UICtrl.displayBalance({
         balance: 0,
         totalInc: 0,
