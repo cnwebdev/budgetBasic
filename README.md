@@ -14,7 +14,7 @@ Student/Programmer: Chris Thanh Nguyen
 After completed the training course, I am able to understand all the concepts and now able to design and code very high quality and most beautifull web/app with realworld features and functionalities. I am confident that with knowledge learned, I am now able to produce many challenging realworld fullstack projects for small business, organizations or personal website.
 
 ## View the website
-[Click to run](https://cnwebdev.github.io/budgetBasic/)
+[Click to run](https://tvn9.github.io/budgetBasic/)
 
 ## Screenshot 
 ### Refactor UI code with Flexbox for better UX
